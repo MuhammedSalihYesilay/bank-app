@@ -1,13 +1,9 @@
 package com.example.bank_app.controller;
 
 import com.example.bank_app.dto.model.AccountDto;
-import com.example.bank_app.dto.model.TransactionDto;
 import com.example.bank_app.dto.request.NewAccountRequest;
-import com.example.bank_app.dto.request.NewMoneyTransferRequest;
 import com.example.bank_app.entity.CustomerEntity;
-import com.example.bank_app.entity.TransactionEntity;
 import com.example.bank_app.service.AccountService;
-import com.example.bank_app.service.TransactionService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,7 +20,6 @@ import java.util.List;
 public class AccountController {
 
     private final AccountService accountService;
-    private final TransactionService transactionService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

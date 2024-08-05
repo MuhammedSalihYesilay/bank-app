@@ -37,7 +37,6 @@ class AuthServiceTest {
 
     @Test
     void whenRegisterCustomerCalledWithValidRequest_shouldCreateValidUserEntity(){
-
         CustomerRegisterRequest customerRegisterRequest = new CustomerRegisterRequest();
         customerRegisterRequest.setEmail("test@test.com");
         customerRegisterRequest.setPassword("testPassword");
@@ -59,7 +58,6 @@ class AuthServiceTest {
 
     @Test
     void whenRegisterCustomerCalledWithInvalidRequest_shouldThrowException(){
-
         CustomerRegisterRequest customerRegisterRequest = new CustomerRegisterRequest();
         customerRegisterRequest.setEmail("test@test.com");
         customerRegisterRequest.setPassword("testPassword");

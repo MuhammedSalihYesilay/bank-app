@@ -22,6 +22,5 @@ public class AuthController {
         authService.registerCustomer(customerRegisterRequest);
         return new RegisterResponse();
     }
-
 }
 

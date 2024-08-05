@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("customers")
 public class CustomerController {
-
     private final CustomerService customerService;
 
     @GetMapping("me")
