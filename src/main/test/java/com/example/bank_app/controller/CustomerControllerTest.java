@@ -32,7 +32,6 @@ class CustomerControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-
     @Test
     @DisplayName("Should return authenticated customer details")
     void shouldGetAuthenticatedCustomerById_WhenCustomer()  throws Exception {
@@ -49,11 +48,11 @@ class CustomerControllerTest {
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities()));
 
-        when(customerService.getAuthenticatedCustomerById(principal.getId())).thenReturn(customerDto);
+        when(customerService.getAuthenticatedCustomerById( "1")).thenReturn(customerDto);
 
         performGetRequest("/customers/me", customerId);
 
-        verify(customerService, times(1)).getAuthenticatedCustomerById(customerId);
+        verify(customerService, times(1)).getAuthenticatedCustomerById( "1");
 
         SecurityContextHolder.clearContext();
     }
@@ -62,7 +61,7 @@ class CustomerControllerTest {
         mockMvc.perform(get(url)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(customerId))
+                .andExpect(jsonPath("$.id").value( customerId))
                 .andExpect(jsonPath("$.email").value("test@example.com"));
     }
 }

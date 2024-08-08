@@ -57,12 +57,14 @@ class AccountControllerTest {
         NewAccountRequest newAccountRequest = new NewAccountRequest();
         newAccountRequest.setInitialBalance(BigDecimal.valueOf(1000));
 
+        LocalDateTime fixedDateTime = LocalDateTime.of(2024, 8, 2, 21, 15, 18);
+
         AccountDto expectedAccountDto = AccountDto.builder()
                 .id("1")
                 .customerId(customer.getId())
                 .accountNumber("1234567812345678")
                 .balance(BigDecimal.valueOf(1000))
-                .createdAt(LocalDateTime.now())
+                .createdAt(fixedDateTime)
                 .build();
 
         SecurityContextHolder.getContext().setAuthentication(
@@ -72,7 +74,7 @@ class AccountControllerTest {
 
         String requestJson = serializeJson(newAccountRequest);
 
-        MvcResult result =  performPostRequest("/accounts", requestJson);
+        MvcResult result =  performPostRequest("/accounts", requestJson, fixedDateTime);
 
         validateAccountDto(result);
 
@@ -86,7 +88,7 @@ class AccountControllerTest {
         return objectMapper.writeValueAsString(object);
     }
 
-    private MvcResult performPostRequest(String url, String requestJson) throws Exception {
+    private MvcResult performPostRequest(String url, String requestJson, LocalDateTime fixedDateTime) throws Exception {
         return mockMvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson)
@@ -97,6 +99,7 @@ class AccountControllerTest {
                 .andExpect(jsonPath("$.customerId").value("1"))
                 .andExpect(jsonPath("$.balance").value(1000))
                 .andExpect(jsonPath("$.accountNumber").value("1234567812345678"))
+                .andExpect(jsonPath("$.createdAt").value(fixedDateTime.toString()))
                 .andReturn();
     }
 
@@ -126,7 +129,7 @@ class AccountControllerTest {
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(customer, null, customer.getAuthorities()));
 
-        when(accountService.getAllAccounts(customerId)).thenReturn(List.of(expectedAccountDto));
+        when(accountService.getAllAccounts("customerId")).thenReturn(List.of(expectedAccountDto));
 
         performGetRequest("/accounts", customerId, fixedDateTime);
 
@@ -167,23 +170,28 @@ class AccountControllerTest {
        SecurityContextHolder.getContext().setAuthentication(
                new UsernamePasswordAuthenticationToken(customer, null, customer.getAuthorities()));
 
-       when(accountService.getAccountByIdAndCustomerId(accountId, customerId)).thenReturn(expectedAccountDto);
+       when(accountService.getAccountByIdAndCustomerId("1", "customerId")).thenReturn(expectedAccountDto);
 
        performGetAccountByIdRequest("/accounts/" + accountId, customerId, accountId, fixedDateTime);
 
        SecurityContextHolder.clearContext();
     }
 
-        private void performGetAccountByIdRequest(String url, String customerId, String accountId, LocalDateTime fixedDateTime) throws Exception {
-            mockMvc.perform(get(url)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .header("Authorization", "Bearer testToken"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id").value(accountId))
-                    .andExpect(jsonPath("$.customerId").value(customerId))
-                    .andExpect(jsonPath("$.accountNumber").value("1234567812345678"))
-                    .andExpect(jsonPath("$.balance").value(1000.0))
-                    .andExpect(jsonPath("$.createdAt").value(fixedDateTime.toString()));
+    private void performGetAccountByIdRequest(String url, String customerId, String accountId, LocalDateTime fixedDateTime) throws Exception {
+        String token = generateToken();
+        mockMvc.perform(get(url)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(accountId))
+                .andExpect(jsonPath("$.customerId").value(customerId))
+                .andExpect(jsonPath("$.accountNumber").value("1234567812345678"))
+                .andExpect(jsonPath("$.balance").value(1000.0))
+                .andExpect(jsonPath("$.createdAt").value(fixedDateTime.toString()));
+    }
+
+    private String generateToken() {
+        return "Bearer testToken"; // dinamik olarak oluşturma!
     }
 
     @Test
