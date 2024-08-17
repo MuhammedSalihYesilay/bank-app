@@ -74,7 +74,7 @@ class AccountControllerTest {
 
         String requestJson = serializeJson(newAccountRequest);
 
-        MvcResult result =  performPostRequest("/accounts", requestJson, fixedDateTime);
+        MvcResult result =  performPostRequest(requestJson, fixedDateTime);
 
         validateAccountDto(result);
 
@@ -88,11 +88,10 @@ class AccountControllerTest {
         return objectMapper.writeValueAsString(object);
     }
 
-    private MvcResult performPostRequest(String url, String requestJson, LocalDateTime fixedDateTime) throws Exception {
-        return mockMvc.perform(post(url)
+    private MvcResult performPostRequest(String requestJson, LocalDateTime fixedDateTime) throws Exception {
+        return mockMvc.perform(post("/accounts")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestJson)
-                        .header(HttpHeaders.AUTHORIZATION, "Basic dGVzdEBleGFtcGxlLmNvbTpwYXNzd29yZDEyMw=="))
+                        .content(requestJson))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", "http://localhost/accounts/1"))
                 .andExpect(jsonPath("$.id").value("1"))
@@ -131,15 +130,14 @@ class AccountControllerTest {
 
         when(accountService.getAllAccounts("customerId")).thenReturn(List.of(expectedAccountDto));
 
-        performGetRequest("/accounts", customerId, fixedDateTime);
+        performGetRequest(customerId, fixedDateTime);
 
         SecurityContextHolder.clearContext();
     }
 
-    private void performGetRequest(String url, String customerId, LocalDateTime fixedDateTime) throws Exception {
-        mockMvc.perform(get(url)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer testToken"))
+    private void performGetRequest(String customerId, LocalDateTime fixedDateTime) throws Exception {
+        mockMvc.perform(get("/accounts")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value("1"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].customerId").value(customerId))
@@ -178,20 +176,14 @@ class AccountControllerTest {
     }
 
     private void performGetAccountByIdRequest(String url, String customerId, String accountId, LocalDateTime fixedDateTime) throws Exception {
-        String token = generateToken();
         mockMvc.perform(get(url)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", token))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(accountId))
                 .andExpect(jsonPath("$.customerId").value(customerId))
                 .andExpect(jsonPath("$.accountNumber").value("1234567812345678"))
                 .andExpect(jsonPath("$.balance").value(1000.0))
                 .andExpect(jsonPath("$.createdAt").value(fixedDateTime.toString()));
-    }
-
-    private String generateToken() {
-        return "Bearer testToken"; // dinamik olarak oluşturma!
     }
 
     @Test
@@ -216,8 +208,7 @@ class AccountControllerTest {
     }
 
     private void performDeleteRequest(String url) throws Exception {
-        mockMvc.perform(delete(url)
-                        .header("Authorization", "Bearer testToken"))
+        mockMvc.perform(delete(url))
                 .andExpect(status().isNoContent());
     }
 }

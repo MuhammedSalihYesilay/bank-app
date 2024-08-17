@@ -16,8 +16,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-//import java.time.LocalDateTime;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -54,7 +52,7 @@ class AuthControllerTest {
 
         doNothing().when(authService).registerCustomer(any(CustomerRegisterRequest.class));
 
-        MvcResult result = performPostRequest("/auth/register", requestJson);
+        MvcResult result = performPostRequest(requestJson);
 
         validateRegisterResponse(result);
     }
@@ -63,10 +61,10 @@ class AuthControllerTest {
         return objectMapper.writeValueAsString(object);
     }
 
-    private MvcResult performPostRequest(String url, String content) throws Exception {
-        return mockMvc.perform(post(url)
+    private MvcResult performPostRequest(String requestJson) throws Exception {
+        return mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(content))
+                        .content(requestJson))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$").exists())
                 .andReturn();

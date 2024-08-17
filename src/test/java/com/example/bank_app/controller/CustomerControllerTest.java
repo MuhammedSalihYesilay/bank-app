@@ -50,18 +50,18 @@ class CustomerControllerTest {
 
         when(customerService.getAuthenticatedCustomerById( "1")).thenReturn(customerDto);
 
-        performGetRequest("/customers/me", customerId);
+        performGetRequest(customerId);
 
         verify(customerService, times(1)).getAuthenticatedCustomerById( "1");
 
         SecurityContextHolder.clearContext();
     }
 
-    private void performGetRequest(String url, String customerId) throws Exception {
-        mockMvc.perform(get(url)
+    private void performGetRequest(String customerId) throws Exception {
+        mockMvc.perform(get("/customers/me")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value( customerId))
+                .andExpect(jsonPath("$.id").value(customerId))
                 .andExpect(jsonPath("$.email").value("test@example.com"));
     }
 }

@@ -85,7 +85,7 @@ class TransactionControllerTest {
 
         validateAccountDto(result);
 
-        verify(transactionService, times(1)).addNewTransaction("1", accountId, newMoneyTransferRequest);
+        verify(transactionService, times(1)).addNewTransaction("1", "1", newMoneyTransferRequest);
 
         SecurityContextHolder.clearContext();
     }
@@ -97,8 +97,7 @@ class TransactionControllerTest {
     private MvcResult performPostRequest(String url, String requestJson, LocalDateTime fixedDateTime) throws Exception {
         return mockMvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestJson)
-                        .header(HttpHeaders.AUTHORIZATION, "Basic dGVzdEBleGFtcGxlLmNvbTpwYXNzd29yZDEyMw=="))
+                        .content(requestJson))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", "http://localhost/1/transfer-money/1"))
                 .andExpect(jsonPath("$.id").value("1"))
@@ -150,8 +149,7 @@ class TransactionControllerTest {
 
     private void performGetRequest(String url, String accountId, LocalDateTime fixedDateTime) throws Exception {
         mockMvc.perform(get(url)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer testToken"))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value(accountId))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].senderAccountId").value("test sender account"))
